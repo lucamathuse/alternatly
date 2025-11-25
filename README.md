@@ -16,7 +16,7 @@
 
 ## Demo
 
-<img style="scale: 0.5;" width="400" alt="homescreen" src="https://github.com/user-attachments/assets/e9a9c2c9-09c7-4659-8a1f-df792e3b3e70" />
+<img width="400" alt="homescreen" src="https://github.com/user-attachments/assets/e9a9c2c9-09c7-4659-8a1f-df792e3b3e70" />
 
 
 ---
