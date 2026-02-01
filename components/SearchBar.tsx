@@ -1,118 +1,65 @@
-import React from 'react';
-import { Image } from 'expo-image';
-import { BlurView } from 'expo-blur';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from "react";
+import { TextInput, StyleSheet } from "react-native";
+import { BlurView } from "expo-blur";
+import { useStore } from "../store.js";
+import { useRouter, usePathname } from "expo-router";
 
-export function SearchBar(){
-    const insets = useSafeAreaInsets();
-    return (
-        <View style={[styles.container, { marginBottom: 10 }]}>
-            <BlurView
-                intensity={90}
-                tint="systemMaterialDark"
-                style={styles.textInputContainer}
-            >
-                <TextInput
-                    style={styles.textInput}
-                    placeholder="Search for..."
-                    placeholderTextColor="#888"
-                />
-            </BlurView>
-            <View style={styles.bottomContainer}>
-                <BlurView
-                    intensity={90}
-                    tint="systemMaterialDark"
-                    style={styles.navBarContainer}
-                >
-                    <Image style={{
-                        width: 25,
-                        height: 25,
-                    }} source={require('../assets/icons/home.svg')} />
-                    <Image style={{
-                        width: 25,
-                        height: 25,
-                    }} source={require('../assets/icons/heart.svg')} />
-                    <Image style={{
-                        width: 25,
-                        height: 25,
-                    }} source={require('../assets/icons/user.svg')} />
-                    <Image style={{
-                        width: 25,
-                        height: 25,
-                    }} source={require('../assets/icons/message.svg')} />
-                </BlurView>
-                <BlurView
-                    intensity={90}
-                    tint="systemMaterialDark"
-                    style={styles.profileContainer}
-                >
-                    <Image style={{
-                        width: 25,
-                        height: 25,
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        marginLeft: -13, // half of width
-                        marginTop: -13,  // half of height
-                    }} source={require('../assets/icons/plus.svg')} />
-                </BlurView>
-            </View>
-        </View>
-    );
-}
+export const SearchBar = () => {
+  const setSearchQuery = useStore((state) => state.setSearchQuery);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [localText, setLocalText] = useState("");
+
+  const handleAction = () => {
+    const trimmedText = localText.trim();
+
+    // 1. Sync store
+    setSearchQuery(trimmedText);
+
+    // 2. Navigate if not already there
+    if (pathname !== "/search/result") {
+      router.push("/search/result");
+    }
+  };
+
+  return (
+    <BlurView
+      intensity={90}
+      tint="systemMaterialDark"
+      style={styles.blurContainer}
+    >
+      <TextInput
+        placeholder="Search..."
+        placeholderTextColor="rgba(255,255,255,0.5)"
+        style={styles.input}
+        value={localText}
+        onChangeText={setLocalText}
+        // TRIGGER 1: When user taps the bar to type
+        onFocus={handleAction}
+        // TRIGGER 2: When user hits 'Search' on keyboard
+        onSubmitEditing={handleAction}
+        returnKeyType="search"
+        autoCorrect={false}
+        clearButtonMode="while-editing"
+      />
+    </BlurView>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        position: 'absolute',
-        flex: 1,
-        bottom: 0,
-        width: '100%',
-        paddingHorizontal: 20,
-        backgroundColor: 'transparent'
-    },
-    textInputContainer: {
-        borderRadius: 25,
-        overflow: 'hidden',
-        width: '100%',
-        marginBottom: 10,
-        position: 'relative',
-    },
-    textInput: {
-        height: 45,
-        borderRadius: 25,
-        paddingHorizontal: 15,
-        color: 'white',
-    },
-    bottomContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        marginBottom: 10,
-    },
-
-    profileContainer: {
-        height: 65,
-        width: 65,
-        borderRadius: 65 / 2,
-        overflow: 'hidden',
-        position: 'relative',
-    },
-
-    navBarContainer: {
-        flex: 1,
-        height: 65,
-        borderRadius: 35,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-
-    navBar: {
-        height: 50,
-    },
+  blurContainer: {
+    height: 45,
+    width: "100%",
+    borderRadius: 35,
+    overflow: "hidden",
+    justifyContent: "center",
+    paddingHorizontal: 15,
+    marginBottom: 7.5,
+  },
+  input: {
+    height: 40,
+    color: "white",
+    fontSize: 16,
+  },
 });
-

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "goth-store",
-    "slug": "goth-store",
+    "name": "alternatly",
+    "slug": "alternatly",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -38,6 +38,18 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b1b69a08-83c8-45ec-9af9-67f024459ab1"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b1b69a08-83c8-45ec-9af9-67f024459ab1"
     }
   }
 }

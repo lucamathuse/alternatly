@@ -8,62 +8,64 @@ import {
   Text,
   TouchableOpacity,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useStore } from "../store.js";
+import { useStore } from "../store.js"; // Adjust path as needed
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get("window");
 
-export function ProductOverview() {
+export default function LikedScreen() {
   const items = useStore((state) => state.items);
-  const toggleLike = useStore((state) => state.toggleLike);
   const likedIds = useStore((state) => state.likedIds);
-  // 1. Hook into the new markAsViewed action
-  const markAsViewed = useStore((state) => state.markAsViewed);
+  const toggleLike = useStore((state) => state.toggleLike);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  // Filter items to only show those whose ID is in the likedIds array
+  const likedItems = items.filter((item) => likedIds.includes(item.id));
 
   return (
-    <View style={{ paddingLeft: 15, paddingRight: 15 }}>
-      <Text style={styles.headline}>Selected for you</Text>
-      <View style={styles.grid}>
-        {items.map((product) => {
-          const isLiked = likedIds.includes(product.id);
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{
+        paddingTop: insets.top + 20,
+        paddingBottom: insets.bottom + 80, // Extra padding so the navbar doesn't cover items
+        paddingHorizontal: 15,
+      }}
+    >
+      <Text style={styles.headline}>Your Favorites</Text>
 
-          return (
+      {likedItems.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>You haven't liked any items yet.</Text>
+        </View>
+      ) : (
+        <View style={styles.grid}>
+          {likedItems.map((product) => (
             <View key={product.id} style={styles.item}>
-              {/* LIKE BUTTON */}
+              {/* Like Button (to unlike from this screen) */}
               <TouchableOpacity
                 style={styles.likesContainer}
                 onPress={() => toggleLike(product.id)}
               >
-                <BlurView
-                  intensity={90}
-                  tint={isLiked ? "default" : "systemMaterialDark"}
-                  style={styles.likes}
-                >
+                <BlurView intensity={90} tint="default" style={styles.likes}>
                   <Image
-                    style={{
-                      width: 12,
-                      height: 12,
-                      tintColor: isLiked ? "#ff4b4b" : "white",
-                    }}
+                    style={{ width: 12, height: 12, tintColor: "#ff4b4b" }}
                     source={require("../assets/icons/heart.svg")}
                   />
                   <Text style={{ color: "white", fontSize: 12 }}>
-                    {product.likes + (isLiked ? 1 : 0)}
+                    {product.likes + 1}
                   </Text>
                 </BlurView>
               </TouchableOpacity>
 
-              {/* 2. UPDATED MAIN CLICKABLE AREA */}
+              {/* Navigation to Product Detail */}
               <Pressable
                 style={{ flex: 1 }}
-                onPress={() => {
-                  // 2. Mark as viewed in the store before navigating
-                  markAsViewed(product.id);
-                  router.push(`/product/${product.id}`);
-                }}
+                onPress={() => router.push(`/product/${product.id}`)}
               >
                 <Image
                   style={styles.image}
@@ -90,30 +92,28 @@ export function ProductOverview() {
                 </LinearGradient>
               </Pressable>
             </View>
-          );
-        })}
-      </View>
-    </View>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000", // Dark theme background
+  },
   headline: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 24,
     color: "white",
   },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-  },
-  image: {
-    height: "100%",
-    width: "100%",
-    borderRadius: 10,
-    position: "absolute", // Make sure it fills the background
   },
   item: {
     width: width * 0.44,
@@ -124,11 +124,17 @@ const styles = StyleSheet.create({
     position: "relative",
     overflow: "hidden",
   },
+  image: {
+    height: "100%",
+    width: "100%",
+    borderRadius: 10,
+    position: "absolute",
+  },
   likesContainer: {
     position: "absolute",
     top: 10,
     right: 10,
-    zIndex: 20, // Higher than the Pressable
+    zIndex: 20,
   },
   likes: {
     flexDirection: "row",
@@ -140,7 +146,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   gradient: {
-    height: "50%", // Increased slightly for better text legibility
+    height: "50%",
     width: "100%",
     position: "absolute",
     bottom: 0,
@@ -156,6 +162,14 @@ const styles = StyleSheet.create({
   priceText: {
     color: "white",
     fontWeight: "bold",
+    fontSize: 16,
+  },
+  emptyContainer: {
+    marginTop: 100,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#888",
     fontSize: 16,
   },
 });
